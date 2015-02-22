@@ -1,0 +1,39 @@
+apply plugin: 'groovy'
+apply plugin:'application'
+mainClassName = 'com.github.swm.userclient.App'
+
+sourceCompatibility = 1.5
+version = '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile module('org.codehaus.groovy:groovy-all:2.4.0') {
+        dependency('asm:asm-all:2.2.3')
+        dependency('antlr:antlr:2.7.7')
+        dependency('commons-cli:commons-cli:1.2')
+        dependency('org.codehaus.groovy.modules.http-builder:http-builder:0.5.2')
+        module('org.apache.ant:ant:1.9.3') {
+            dependencies('org.apache.ant:ant-junit:1.9.3@jar',
+                    'org.apache.ant:ant-launcher:1.9.3')
+        }
+    }
+}
+
+task fatjar(dependsOn: jar, type: Jar) {
+
+    from files(sourceSets.main.output.classesDir)
+    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
+
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
