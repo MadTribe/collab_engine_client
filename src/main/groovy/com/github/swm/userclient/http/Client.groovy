@@ -25,7 +25,7 @@ class Client {
             uri.path = path
 
             body = params;
-            headers.'User-Agent' = 'SWM client ${version}'
+            headers.'User-Agent' = "SWM client ${version}"
             headers.Accept = 'application/json';
             //headers."Content-Type" = "application/json"
 
