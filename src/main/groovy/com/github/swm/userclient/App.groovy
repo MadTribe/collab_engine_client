@@ -34,6 +34,9 @@ class App {
     }
 
     private void runRepl(ConfigObject config, List<String> args) {
+        // TODO add propper REPL with something like jline [t=2h]
+        // TODO add logger [t=0.1h]
+
         Client client = new Client((String) config.serverAddress, VERSION);
         def context = new CommandContext(config: config, client: client);
 
@@ -41,7 +44,7 @@ class App {
 
         String input = "";
         while (!input.equalsIgnoreCase("exit") && !input.equalsIgnoreCase("quit")){
-            print ">:"
+            print "> "
 
             input = br.readLine()
 
