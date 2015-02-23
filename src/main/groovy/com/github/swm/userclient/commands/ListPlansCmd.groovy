@@ -7,10 +7,10 @@ import groovy.transform.Canonical
 /**
  * Created by paul.smout on 20/02/2015.
  */
-class LoginCmd extends Command {
+class ListPlansCmd extends Command {
 
-    public LoginCmd(){
-        super("login", "login <username> <password>");
+    public ListPlansCmd(){
+        super("plans", "plans ");
     }
 
     @Override
@@ -18,18 +18,15 @@ class LoginCmd extends Command {
         boolean ret = false;
 
         if (cmd.size() > 0){
-            if (cmd[0] == "login"){
-                List<String> params = cmd.subList(1,cmd.size());
-                ret = parseParams(params) != null;
+            if (cmd[0] == "plans"){
+                ret = true
             }
         }
         return ret;
     }
 
-    private LoginAction parseParams(params){
-        String uname = params[0];
-        String password = params[1];
-        LoginAction parsed = new LoginAction(userName: uname,password: password);
+    private ListPlansAction parseParams(params){
+        ListPlansAction parsed = new ListPlansAction();
 
         return parsed;
     }
@@ -46,12 +43,10 @@ class LoginCmd extends Command {
     }
 
     @Canonical
-    public static class LoginAction{
-        def String userName;
-        def String password;
+    public static class ListPlansAction{
 
         def go(Client client){
-            client.sendPost("/login",[userName:userName,password: password],{ resp, data -> println data;}, null);
+            client.sendGet("/api/plan",[], { resp, data -> println data;}, null);
         }
     }
 

@@ -23,6 +23,7 @@ dependencies {
     }
 }
 
+// TODO make this default target [t:.25h]
 task fatjar(dependsOn: jar, type: Jar) {
 
     from files(sourceSets.main.output.classesDir)
@@ -32,7 +33,6 @@ task fatjar(dependsOn: jar, type: Jar) {
         attributes 'Main-Class': mainClassName
     }
 }
-
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'

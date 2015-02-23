@@ -5,5 +5,5 @@ package com.github.swm.userclient.commands
  */
 class CommandResponse {
     def success;
-    def response;
+    def output;
 }
