@@ -2,7 +2,9 @@ apply plugin: 'groovy'
 apply plugin:'application'
 mainClassName = 'com.github.swm.userclient.App'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 version = '0.0.1'
 
 repositories {
@@ -22,6 +24,7 @@ dependencies {
         }
     }
 }
+
 
 // TODO make this default target [t:.25h]
 task fatjar(dependsOn: jar, type: Jar) {

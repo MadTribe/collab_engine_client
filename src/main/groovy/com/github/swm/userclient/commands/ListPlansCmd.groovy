@@ -4,6 +4,8 @@ import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
 
+import java.util.concurrent.Future
+
 /**
  * Created by paul.smout on 20/02/2015.
  */

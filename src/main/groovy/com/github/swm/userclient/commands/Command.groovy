@@ -3,6 +3,8 @@ package com.github.swm.userclient.commands
 import com.github.swm.userclient.context.CommandContext
 import groovy.transform.Canonical
 
+import java.util.concurrent.Future
+
 /**
  * Created by paul.smout on 20/02/2015.
  */

@@ -4,6 +4,12 @@ import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
+import java.util.concurrent.FutureTask
+import java.util.concurrent.TimeUnit
+
+
 /**
  * Created by paul.smout on 20/02/2015.
  */
@@ -36,12 +42,11 @@ class LoginCmd extends Command {
 
     @Override
     CommandResponse run(final List<String> cmd, CommandContext context) {
+
         Client client = context.getClient();
         List<String> params = cmd.subList(1,cmd.size());
 
-        parseParams(params).go(client);
-
-        return null;
+        return parseParams(params).go(client);
 
     }
 
@@ -50,9 +55,40 @@ class LoginCmd extends Command {
         def String userName;
         def String password;
 
-        def go(Client client){
-            client.sendPost("/login",[userName:userName,password: password],{ resp, data -> println data;}, null);
+        def CommandResponse go(Client client){
+            CommandResponse ret = null;
+            client.sendPost("/login",
+                            [userName:userName,password: password],
+                            { resp, data ->
+                                ret = success(data);
+                            },
+                            { resp ->
+                                ret = fail(resp);
+                            });
+
+
+            return ret;
         }
+
+       def CommandResponse success(data){
+            def ret = new CommandResponse();
+            ret.success = true;
+            ret.output = "Login Successful";
+            ret.data = data;
+            return ret;
+       }
+
+        def CommandResponse fail(resp){
+            def ret = new CommandResponse();
+            ret.success = false;
+            if (resp.statusLine.statusCode == 403){
+                ret.output = "Access Denied";
+            } else {
+                ret.output = "Return code: ${resp.statusLine.statusCode} ${resp.statusLine.reasonPhrase}";
+            }
+            return ret;
+        }
+
     }
 
 }

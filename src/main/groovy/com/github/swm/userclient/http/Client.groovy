@@ -17,7 +17,6 @@ class Client {
     }
 
     def sendPost(path,entity, onSuccess, onFailure){
-
         // perform a POST request, expecting JSON response data
         http.request( POST, JSON ) {
 
@@ -35,8 +34,6 @@ class Client {
 
             // handler for any failure status code:
             response.failure = { resp ->
-
-                log "Unexpected error: ${resp} ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}"
                 if (onFailure){
                     onFailure(resp);
                 }

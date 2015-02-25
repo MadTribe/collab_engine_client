@@ -8,6 +8,8 @@ import com.github.swm.userclient.commands.LoginCmd
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 
+import java.util.concurrent.TimeUnit
+
 import static java.util.Arrays.asList;
 
 class App {
@@ -19,6 +21,8 @@ class App {
     }
 
     def config = null;
+    Client client;
+    CommandContext context;
 
     public App(List<String> args){
         if (args.size() > 0){
@@ -26,6 +30,9 @@ class App {
             String fileName = args.remove(0);
 
             config = new ConfigSlurper().parse(new File(fileName).toURL())
+
+            initialize(config);
+
             runRepl(config, args)
         } else {
             output("First Param is config file");
@@ -33,12 +40,21 @@ class App {
 
     }
 
+    public App(ConfigObject config){
+        this.config = config;
+        initialize(config);
+    }
+
+    private void initialize(config){
+        Client client = new Client((String) config.serverAddress, VERSION);
+        context = new CommandContext(config: config, client: client);
+
+    }
+
     private void runRepl(ConfigObject config, List<String> args) {
         // TODO add propper REPL with something like jline [t=2h]
         // TODO add logger [t=0.1h]
 
-        Client client = new Client((String) config.serverAddress, VERSION);
-        def context = new CommandContext(config: config, client: client);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in))
 
@@ -50,7 +66,7 @@ class App {
 
             def cmd = new ArrayList<String>(asList(input.split(" ")));
 
-            runCommand(cmd, context);
+            runCommand(cmd);
         }
 
         output("Bye!")
@@ -58,15 +74,19 @@ class App {
     }
 
 
-    private void runCommand(List<String> args, context) {
+    public CommandResponse runCommand(List<String> args) {
+        CommandResponse ret = null;
+
         def commands = getCommands();
 
         commands.each { cmd ->
             if (cmd.accept(args)) {
-                output("Running Command ${cmd.name}");
-                cmd.run(args, context);
+                ret = cmd.run(args, context);
+                output "  " + ret .output.toString();
             }
         }
+
+        return ret;
     }
 
 
