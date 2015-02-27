@@ -5,6 +5,7 @@ import com.github.swm.userclient.commands.CommandResponse
 import com.github.swm.userclient.commands.HelpCmd
 import com.github.swm.userclient.commands.ListPlansCmd
 import com.github.swm.userclient.commands.LoginCmd
+import com.github.swm.userclient.commands.NewPlanCmd
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 
@@ -95,7 +96,7 @@ class App {
     }
 
     public List<Command> getCommands(){
-        return asList(new LoginCmd(), new HelpCmd(), new ListPlansCmd())
+        return asList(new LoginCmd(), new HelpCmd(), new ListPlansCmd(), new NewPlanCmd())
     }
 
 }

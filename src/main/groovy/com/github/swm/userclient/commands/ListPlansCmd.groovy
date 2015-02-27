@@ -40,6 +40,7 @@ class ListPlansCmd extends Command {
 
         parseParams(params).go(client);
 
+        // TODO return data in a CommandResponse object [t:30m]
         return null;
 
     }
@@ -48,6 +49,8 @@ class ListPlansCmd extends Command {
     public static class ListPlansAction{
 
         def go(Client client){
+
+
             client.sendGet("/api/plan",[], { resp, data -> println data;}, null);
         }
     }
