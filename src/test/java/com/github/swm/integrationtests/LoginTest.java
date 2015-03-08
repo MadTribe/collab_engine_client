@@ -3,6 +3,7 @@ package com.github.swm.integrationtests;
 import com.github.swm.userclient.App;
 import com.github.swm.userclient.commands.CommandResponse;
 import groovy.util.ConfigObject;
+import net.sf.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +46,7 @@ public class LoginTest {
 
         assertThat(resp.getSuccess(),is(true));
         assertThat(resp.getOutput(),equalTo("Login Successful"));
-        assertNotNull(resp.getData().get("sessionId"));
+        assertNotNull(((JSONObject) resp.getData()).get("sessionId"));
 
     }
 

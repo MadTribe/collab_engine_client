@@ -7,17 +7,17 @@ import groovy.transform.Canonical
 /**
  * Created by paul.smout on 20/02/2015.
  */
-class NewPlanCmd extends Command {
+class NewPlanStepCmd extends Command {
 
-    public NewPlanCmd(){
-        super("newPlan","Creates a new plan.", "newPlan <name>  ~ <description>");
+    public NewPlanStepCmd(){
+        super("newStep","Creates a new plan step.", "newStep <planId> ~ <step-name>  ~ <step-description>");
     }
 
     @Override
     def boolean accept(final List<String> cmd){
         boolean ret = false;
         if (cmd.size() > 0){
-            if (cmd[0] == "newPlan"){
+            if (cmd[0] == "newStep"){
                 List<String> params = cmd.subList(1,cmd.size());
                 ret = parseParams(params) != null;
             }
@@ -25,35 +25,19 @@ class NewPlanCmd extends Command {
         return ret;
     }
 
-    private NewPlanAction parseParams(params){
+    private NewPlanStepAction parseParams(params){
         def cmdString = params.join(" ");
 
-        println "HERE " + cmdString;
-
-        String name = "";
-        String description = "";
-
-        boolean readingName = true;
-        boolean skip = false;
-        cmdString.each{ c ->
-            if (c == '~' ){
-                readingName = false;
-                skip = true;
-            }
-
-            if (!skip){
-                if (readingName){
-                    name += c;
-                } else {
-                    description += c;
-                }
-            }
-
-            skip = false
+        NewPlanStepAction parsed = null;
+        def matcher = cmdString =~ /\s*+(\d++) ([\w*\W*]*)~([\w*+\W*+]*)/
+        if (matcher){
+            Long planId = Long.parseLong(matcher[0][1]);
+            String name = matcher[0][2];
+            String description = matcher[0][3];
+            parsed = new NewPlanStepAction(planId: planId, name: name,description: description);
         }
 
 
-        NewPlanAction parsed = new NewPlanAction(name: name,description: description);
 
         return parsed;
     }
@@ -63,19 +47,27 @@ class NewPlanCmd extends Command {
 
         Client client = context.getClient();
         List<String> params = cmd.subList(1,cmd.size());
+        def ret = null;
+        def action =  parseParams(params);
+        if (action){
+            ret = action.go(client);
+        } else {
+            ret = new CommandResponse(success: false, output: "unable to parse command",data: null);
+        }
 
-        return parseParams(params).go(client);
-
+        return ret;
     }
 
     @Canonical
-    public static class NewPlanAction{
+    public static class NewPlanStepAction {
+        def Long planId;
         def String name;
         def String description;
 
         def CommandResponse go(Client client){
             CommandResponse ret = null;
-            client.sendPost("/api/plan",
+            String path = "/api/plan/" + planId + "/step";
+            client.sendPost(path,
                             [name:name,description: description],
                             { resp, data ->
                                 ret = success(data);
@@ -91,7 +83,7 @@ class NewPlanCmd extends Command {
        def CommandResponse success(data){
             def ret = new CommandResponse();
             ret.success = true;
-            ret.output = "Plan Created";
+            ret.output = "Step Created";
             ret.data = data;
             return ret;
        }

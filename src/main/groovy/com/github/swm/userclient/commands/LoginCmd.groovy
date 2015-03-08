@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 class LoginCmd extends Command {
 
     public LoginCmd(){
-        super("login", "login <username> <password>");
+        super("login","Lets you log in for 1 session.", "login <username> <password>");
     }
 
     @Override

@@ -10,9 +10,11 @@ import java.util.concurrent.Future
  * Created by paul.smout on 20/02/2015.
  */
 class HelpCmd extends Command {
+    CommandRegistry commandRegistry;
 
-    public HelpCmd(){
-        super("help","help or ?");
+    public HelpCmd(CommandRegistry cmds){
+        super("help","Gives usage information for a command.","help or ?  <command name>");
+        this.commandRegistry = cmds;
     }
 
     @Override
@@ -34,7 +36,20 @@ class HelpCmd extends Command {
     CommandResponse run(final List<String> cmd, CommandContext context) {
         // TODO read commands on classpath and generate usage string [t:1.5h]
         // TODO sort out command progressive output and return codes [t:1.5h]
-        return new CommandResponse(output: "Some help you are");
+        def ret = new CommandResponse()
+        def foundCmd = null
+        ret.output = "";
+        if (cmd.size()){
+            foundCmd =  commandRegistry.getCommands().find{ it.name == cmd[1]}
+        }
+        if (foundCmd){
+            ret.output = foundCmd.usage;
+        } else {
+            commandRegistry.commands.each { c -> ret.output += "${c.name}   -  ${c.description}\n"}
+        }
+        ret.success = true;
+
+        return ret;
 
     }
 

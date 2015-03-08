@@ -11,6 +11,7 @@ import java.util.concurrent.Future
 @Canonical
 abstract class Command {
     def name;
+    def description;
     def usage;
 
     def abstract boolean accept(List<String> cmd);

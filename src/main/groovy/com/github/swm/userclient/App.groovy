@@ -1,6 +1,7 @@
 package com.github.swm.userclient
 
 import com.github.swm.userclient.commands.Command
+import com.github.swm.userclient.commands.CommandRegistry
 import com.github.swm.userclient.commands.CommandResponse
 import com.github.swm.userclient.commands.HelpCmd
 import com.github.swm.userclient.commands.ListPlansCmd
@@ -24,6 +25,7 @@ class App {
     def config = null;
     Client client;
     CommandContext context;
+    CommandRegistry registry = new CommandRegistry();
 
     public App(List<String> args){
         if (args.size() > 0){
@@ -78,12 +80,12 @@ class App {
     public CommandResponse runCommand(List<String> args) {
         CommandResponse ret = null;
 
-        def commands = getCommands();
+        def commands = registry.getCommands();
 
         commands.each { cmd ->
             if (cmd.accept(args)) {
                 ret = cmd.run(args, context);
-                output "  " + ret .output.toString();
+                output ret.output.toString();
             }
         }
 

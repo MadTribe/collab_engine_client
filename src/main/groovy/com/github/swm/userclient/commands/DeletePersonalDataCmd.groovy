@@ -3,78 +3,73 @@ package com.github.swm.userclient.commands
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
-import net.sf.json.JSONArray
-
-import java.util.concurrent.Future
 
 /**
  * Created by paul.smout on 20/02/2015.
  */
-class ListPlansCmd extends Command {
+class DeletePersonalDataCmd extends Command {
 
-    public ListPlansCmd(){
-        super("plans","Lists all your plans." ,"plans ");
+    public DeletePersonalDataCmd(){
+        super("deleteAll","Deletes all your data irretrievably. (Use if you are feeling stupid)", "deleteAll");
     }
 
     @Override
     def boolean accept(final List<String> cmd){
         boolean ret = false;
-
         if (cmd.size() > 0){
-            if (cmd[0] == "plans"){
-                ret = true
+            if (cmd[0] == "deleteAll"){
+                List<String> params = cmd.subList(1,cmd.size());
+                ret = parseParams(params) != null;
             }
         }
         return ret;
     }
 
-    private ListPlansAction parseParams(params){
-        ListPlansAction parsed = new ListPlansAction();
+    private DeleteAllAction parseParams(params){
+
+
+        DeleteAllAction parsed = new DeleteAllAction();
 
         return parsed;
     }
 
     @Override
     CommandResponse run(final List<String> cmd, CommandContext context) {
+
         Client client = context.getClient();
         List<String> params = cmd.subList(1,cmd.size());
 
-
-        return  parseParams(params).go(client);;
+        return parseParams(params).go(client);
 
     }
 
     @Canonical
-    public static class ListPlansAction{
+    public static class DeleteAllAction {
+        def String name;
+        def String description;
 
-        def go(Client client){
+        def CommandResponse go(Client client){
             CommandResponse ret = null;
-            client.sendGet("/api/plan",[],{ resp, data ->
-                ret = success(data);
-            },
-            { resp ->
-               ret = fail(resp);
-            });
+            client.sendPost("/api/teardown",
+                            [name:name,description: description],
+                            { resp, data ->
+                                ret = success(data);
+                            },
+                            { resp ->
+                                ret = fail(resp);
+                            });
+
 
             return ret;
-
         }
 
-        def CommandResponse success(data){
+       def CommandResponse success(data){
             def ret = new CommandResponse();
             ret.success = true;
-            ret.output = "My Plans \n";
+            ret.output = "Content Deleted";
             ret.data = data;
-
-            JSONArray planList = data;
-            planList.each { plan ->
-                ret.output += "${plan.id}  ${plan.name} ${plan.description}\n"
-
-            }
-
-
             return ret;
-        }
+       }
 
         def CommandResponse fail(resp){
             def ret = new CommandResponse();
@@ -87,9 +82,6 @@ class ListPlansCmd extends Command {
             return ret;
         }
 
-
     }
-
-
 
 }
