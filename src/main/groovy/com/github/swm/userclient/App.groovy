@@ -85,7 +85,7 @@ class App {
         commands.each { cmd ->
             if (cmd.accept(args)) {
                 ret = cmd.run(args, context);
-                output ret.output.toString();
+                output ret?.output?.toString();
             }
         }
 

@@ -4,16 +4,15 @@ import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
 import net.sf.json.JSONArray
-
-import java.util.concurrent.Future
+import net.sf.json.JSONObject
 
 /**
  * Created by paul.smout on 20/02/2015.
  */
-class ListPlansCmd extends Command {
+class ShowPlanCmd extends Command {
 
-    public ListPlansCmd(){
-        super("plans","Lists all your plans." ,"plans ");
+    public ShowPlanCmd(){
+        super("showPlan","Shows the steps in one plan." ,"showPlan <id>");
     }
 
     @Override
@@ -21,15 +20,19 @@ class ListPlansCmd extends Command {
         boolean ret = false;
 
         if (cmd.size() > 0){
-            if (cmd[0] == "plans"){
+            if (cmd[0] == "showPlan"){
                 ret = true
             }
         }
         return ret;
     }
 
-    private ListPlansAction parseParams(params){
-        ListPlansAction parsed = new ListPlansAction();
+    private ShowPlanAction parseParams(params){
+        ShowPlanAction parsed = null;
+
+        if(params.size() > 0){
+            parsed = new ShowPlanAction(planId: Integer.parseInt(params[0]));
+        }
 
         return parsed;
     }
@@ -40,16 +43,18 @@ class ListPlansCmd extends Command {
         List<String> params = cmd.subList(1,cmd.size());
 
 
-        return  parseParams(params).go(client);;
+        return  parseParams(params)?.go(client);;
 
     }
 
     @Canonical
-    public static class ListPlansAction{
+    public static class ShowPlanAction{
+
+        def int planId;
 
         def go(Client client){
             CommandResponse ret = null;
-            client.sendGet("/api/plan",[],{ resp, data ->
+            client.sendGet("/api/plan/" + planId,[],{ resp, data ->
                 ret = success(data);
             },
             { resp ->
@@ -63,13 +68,15 @@ class ListPlansCmd extends Command {
         def CommandResponse success(data){
             def ret = new CommandResponse();
             ret.success = true;
-            ret.output = "My Plans \n";
+            ret.output = "Plan \n";
             ret.data = data;
 
-            JSONArray planList = data;
-            planList.each { plan ->
-                ret.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.numSteps})\n"
+            JSONObject plan = data;
 
+            ret.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.numSteps})\n"
+
+            plan.steps.each{ step ->
+                ret.output += "     ${step.name}  ${step.description} \n";
             }
 
 

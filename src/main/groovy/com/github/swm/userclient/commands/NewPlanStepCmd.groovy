@@ -10,7 +10,7 @@ import groovy.transform.Canonical
 class NewPlanStepCmd extends Command {
 
     public NewPlanStepCmd(){
-        super("newStep","Creates a new plan step.", "newStep <planId> ~ <step-name>  ~ <step-description>");
+        super("newStep","Creates a new plan step.", "newStep <planId> <step-name> ~ <step-description>");
     }
 
     @Override

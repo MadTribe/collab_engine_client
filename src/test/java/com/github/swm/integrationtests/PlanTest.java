@@ -62,20 +62,35 @@ public class PlanTest {
     }
 
     public void _should_log_in_and_create_a_plan(){
-       ops.login();
-       ops.deleteEverything();
-       ops.newPlan("My First Plan","This plan is about attaining world peace.");
+        ops.login();
+        ops.deleteEverything();
+        ops.newPlan("My First Plan","This plan is about attaining world peace.");
 
-       CommandResponse resp = ops.listPlans();
-       assertThat(resp.getData().size(), equalTo(1));
+        CommandResponse resp = ops.listPlans();
+        assertThat(resp.getData().size(), equalTo(1));
 
-       // from the plan id create a few plan steps
-       Long planId = ((JSONObject)((JSONArray)resp.getData()).get(0)).getLong("id");
+        // from the plan id create a few plan steps
+        Long planId = ((JSONObject)((JSONArray)resp.getData()).get(0)).getLong("id");
 
-       ops.newPlanStep(planId, "Buy baby rabbits","Rabbits should be purchased from an organic rabbit dispensiary");
-       ops.newPlanStep(planId, "Train rabbits to hand out flowers","Rabbit training should use only humane ecologically sound techniques");
-       ops.newPlanStep(planId, "Train rabbits to give hugs","Rabbit training should use only humane ecologically sound techniques");
+        ops.newPlanStep(planId, "Buy baby rabbits","Rabbits should be purchased from an organic rabbit dispensary");
+        ops.newPlanStep(planId, "Train rabbits to hand out flowers","Rabbit training should use only humane ecologically sound techniques");
+        ops.newPlanStep(planId, "Train rabbits to give hugs","Rabbit training should include counselling for emotionally fragile rabbits.");
 
+
+        resp = ops.listPlans();
+        assertThat(resp.getData().size(), equalTo(1));
+
+        int numSteps = ((JSONObject)((JSONArray)resp.getData()).get(0)).getInt("numSteps");
+        Long id = ((JSONObject)((JSONArray)resp.getData()).get(0)).getLong("id");
+        String name = ((JSONObject)((JSONArray)resp.getData()).get(0)).getString("name");
+        String description = ((JSONObject)((JSONArray)resp.getData()).get(0)).getString("description");
+        assertThat(numSteps, equalTo(3));
+        assertThat(name, equalTo("My First Plan"));
+        assertThat(description, equalTo("This plan is about attaining world peace."));
+
+
+        resp = ops.showPlan(id);
+        System.err.println(resp);
     }
 
 

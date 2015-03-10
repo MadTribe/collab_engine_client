@@ -45,6 +45,13 @@ class OperationsHelper {
 
     }
 
+    public CommandResponse showPlan(Long planId) {
+        CommandResponse resp = app.runCommand(cmd(format("showPlan %d",planId)));
+
+        assertThat(resp.getSuccess(),is(true));
+        return resp;
+    }
+
 
     public CommandResponse listPlans() {
         CommandResponse resp = app.runCommand(cmd(format("plans")));

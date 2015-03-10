@@ -28,8 +28,6 @@ class NewPlanCmd extends Command {
     private NewPlanAction parseParams(params){
         def cmdString = params.join(" ");
 
-        println "HERE " + cmdString;
-
         String name = "";
         String description = "";
 
@@ -53,7 +51,7 @@ class NewPlanCmd extends Command {
         }
 
 
-        NewPlanAction parsed = new NewPlanAction(name: name,description: description);
+        NewPlanAction parsed = new NewPlanAction(name: name.trim(),description: description.trim());
 
         return parsed;
     }
