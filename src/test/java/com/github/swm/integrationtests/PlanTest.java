@@ -38,7 +38,7 @@ public class PlanTest {
 
     @After
     public void teardown(){
-    //    ops.deleteEverything();
+       ops.given_I_have_deleted_all_my_data();
     }
 
     @Test
@@ -62,37 +62,60 @@ public class PlanTest {
     }
 
     public void _should_log_in_and_create_a_plan(){
-        ops.login();
-        ops.deleteEverything();
-        ops.newPlan("My First Plan","This plan is about attaining world peace.");
+        ops.given_I_have_logged_in();
+        // and
+        ops.given_I_have_deleted_all_my_data();
 
-        CommandResponse resp = ops.listPlans();
+        // and given
+        ops.I_create_a_new_plan("My First Plan", "This plan is about attaining world peace.");
+
+        // then I will have one plan in the system
+        CommandResponse resp = ops.when_i_list_my_plans();
         assertThat(resp.getData().size(), equalTo(1));
 
         // from the plan id create a few plan steps
         Long planId = ((JSONObject)((JSONArray)resp.getData()).get(0)).getLong("id");
 
-        ops.newPlanStep(planId, "Buy baby rabbits","Rabbits should be purchased from an organic rabbit dispensary");
-        ops.newPlanStep(planId, "Train rabbits to hand out flowers","Rabbit training should use only humane ecologically sound techniques");
-        ops.newPlanStep(planId, "Train rabbits to give hugs","Rabbit training should include counselling for emotionally fragile rabbits.");
+        Long step1Id = ops.i_create_a_new_plan_step(planId, "Buy baby rabbits", "Rabbits should be purchased from an organic rabbit dispensary");
+        Long step2Id = ops.i_create_a_new_plan_step(planId, "Train rabbits to hand out flowers", "Rabbit training should use only humane ecologically sound techniques");
+        Long step3Id = ops.i_create_a_new_plan_step(planId, "Train rabbits to give hugs", "Rabbit training should include counselling for emotionally fragile rabbits.");
 
 
-        resp = ops.listPlans();
+        resp = ops.when_i_list_my_plans();
         assertThat(resp.getData().size(), equalTo(1));
 
-        int numSteps = ((JSONObject)((JSONArray)resp.getData()).get(0)).getInt("numSteps");
-        Long id = ((JSONObject)((JSONArray)resp.getData()).get(0)).getLong("id");
-        String name = ((JSONObject)((JSONArray)resp.getData()).get(0)).getString("name");
-        String description = ((JSONObject)((JSONArray)resp.getData()).get(0)).getString("description");
-        assertThat(numSteps, equalTo(3));
-        assertThat(name, equalTo("My First Plan"));
-        assertThat(description, equalTo("This plan is about attaining world peace."));
+        // then the plan I created should exist
+        JSONArray plans = (JSONArray)resp.getData();
+        JSONObject plan1 = plans.getJSONObject(0);
+        Long id = validate_plan(plan1, "My First Plan", "This plan is about attaining world peace.", 3);
 
 
         resp = ops.showPlan(id);
         System.err.println(resp);
+
+        //
+        ops.i_add_an_oncompleted_event_to_each_step("complete", null, step1Id, step2Id);
+        ops.i_add_an_oncompleted_event_to_each_step("complete", null, step2Id, step3Id);
+        ops.i_add_an_oncompleted_event_to_each_step("complete", null, step3Id, null);
+
+
+
+        ops.when_i_begin_my_plan(id);
     }
 
 
+    private long validate_plan(JSONObject plan, String expectedName, String expectedDescription, int expectedNumSteps){
+
+        Long id = plan.getLong("id");
+        String name = plan.getString("name");
+        String description = plan.getString("description");
+        int numSteps = plan.getInt("numSteps");
+        assertThat(numSteps, equalTo(3));
+
+        assertThat(name, equalTo("My First Plan"));
+        assertThat(description, equalTo("This plan is about attaining world peace."));
+
+        return id;
+    }
 
 }

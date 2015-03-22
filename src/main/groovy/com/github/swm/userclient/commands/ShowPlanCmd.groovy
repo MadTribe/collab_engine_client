@@ -73,7 +73,7 @@ class ShowPlanCmd extends Command {
 
             JSONObject plan = data;
 
-            ret.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.numSteps})\n"
+            ret.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.steps?.size()})\n"
 
             plan.steps.each{ step ->
                 ret.output += "     ${step.name}  ${step.description} \n";

@@ -12,7 +12,8 @@ class CommandRegistry {
                                     new NewPlanCmd(),
                                     new DeletePersonalDataCmd(),
                                     new NewPlanStepCmd(),
-                                    new ShowPlanCmd())
+                                    new ShowPlanCmd(),
+                                    new NewStepEventCmd())
 
     public List<Command> getCommands(){
         return commands;
