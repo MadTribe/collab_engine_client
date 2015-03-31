@@ -71,6 +71,7 @@ public class PlanTest {
 
         // then I will have one plan in the system
         CommandResponse resp = ops.when_i_list_my_plans();
+        System.err.println(">>> " + resp);
         assertThat(resp.getData().size(), equalTo(1));
 
         // from the plan id create a few plan steps
@@ -98,9 +99,52 @@ public class PlanTest {
         ops.i_add_an_oncompleted_event_to_each_step("complete", null, step2Id, step3Id);
         ops.i_add_an_oncompleted_event_to_each_step("complete", null, step3Id, null);
 
-
-
         ops.when_i_begin_my_plan(id);
+
+        CommandResponse tasksResp = ops.when_i_list_my_tasks();
+        JSONArray tasks = (JSONArray)tasksResp.getData();
+        assertThat(tasks.size(), equalTo(1));
+        JSONObject task1 = tasks.getJSONObject(0);
+
+        validate_task(task1, "Buy baby rabbits", "Rabbits should be purchased from an organic rabbit dispensary");
+
+        ops.when_i_complete_my_task(task1.getInt("id"));
+
+        tasksResp = ops.when_i_list_my_tasks();
+        tasks = (JSONArray)tasksResp.getData();
+        assertThat(tasks.size(), equalTo(1));
+        JSONObject task2 = tasks.getJSONObject(0);
+
+        validate_task(task2, "Train rabbits to hand out flowers", "Rabbit training should use only humane ecologically sound techniques");
+
+
+        ops.when_i_complete_my_task(task2.getInt("id"));
+
+        tasksResp = ops.when_i_list_my_tasks();
+        tasks = (JSONArray)tasksResp.getData();
+        assertThat(tasks.size(), equalTo(1));
+        JSONObject task3 = tasks.getJSONObject(0);
+
+        validate_task(task3, "Train rabbits to give hugs", "Rabbit training should include counselling for emotionally fragile rabbits.");
+
+        ops.when_i_complete_my_task(task3.getInt("id"));
+        tasksResp = ops.when_i_list_my_tasks();
+        tasks = (JSONArray)tasksResp.getData();
+        assertThat(tasks.size(), equalTo(0));
+
+    }
+
+
+    private long validate_task(JSONObject task, String expectedName, String expectedDescription){
+
+        Long id = task.getLong("id");
+        String name = task.getString("name");
+        String description = task.getString("description");
+
+        assertThat(name, equalTo(expectedName));
+        assertThat(description, equalTo(expectedDescription));
+
+        return id;
     }
 
 
@@ -110,10 +154,10 @@ public class PlanTest {
         String name = plan.getString("name");
         String description = plan.getString("description");
         int numSteps = plan.getInt("numSteps");
-        assertThat(numSteps, equalTo(3));
+        assertThat(numSteps, equalTo(expectedNumSteps));
 
-        assertThat(name, equalTo("My First Plan"));
-        assertThat(description, equalTo("This plan is about attaining world peace."));
+        assertThat(name, equalTo(expectedName));
+        assertThat(description, equalTo(expectedDescription));
 
         return id;
     }

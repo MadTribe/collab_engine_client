@@ -34,7 +34,7 @@ class NewPlanStepCmd extends Command {
             Long planId = Long.parseLong(matcher[0][1]);
             String name = matcher[0][2];
             String description = matcher[0][3];
-            parsed = new NewPlanStepAction(planId: planId, name: name,description: description);
+            parsed = new NewPlanStepAction(planId: planId, name: name?.trim(),description: description?.trim());
         }
 
 

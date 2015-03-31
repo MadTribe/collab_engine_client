@@ -95,4 +95,21 @@ class OperationsHelper {
         CommandResponse resp = app.runCommand(cmd(format("beginPlan %d", planId)));
         assertThat(resp.getSuccess(),is(true));
     }
+
+    public CommandResponse when_i_list_my_tasks() {
+        CommandResponse resp = app.runCommand(cmd(format("tasks")));
+        assertThat(resp.getSuccess(),is(true));
+        return resp;
+    }
+
+    public CommandResponse when_i_complete_my_task(long taskId) {
+
+        return sendTaskEvent(taskId, "Complete");
+    }
+
+    private CommandResponse sendTaskEvent(long taskId, String event) {
+        CommandResponse resp = app.runCommand(cmd(format("event %d %s", taskId, event)));
+        assertThat(resp.getSuccess(),is(true));
+        return resp;
+    }
 }

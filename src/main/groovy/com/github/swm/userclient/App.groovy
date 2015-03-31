@@ -78,6 +78,7 @@ class App {
 
 
     public CommandResponse runCommand(List<String> args) {
+        println "******* " + args;
         CommandResponse ret = null;
 
         def commands = registry.getCommands();
@@ -88,7 +89,6 @@ class App {
                 output ret?.output?.toString();
             }
         }
-
         return ret;
     }
 

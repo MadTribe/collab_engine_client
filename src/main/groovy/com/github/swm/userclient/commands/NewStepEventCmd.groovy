@@ -28,7 +28,7 @@ class NewStepEventCmd extends Command {
 
     private NewStepEventAction parseParams(params){
         def cmdString = params.join(" ");
-
+println "£££££££ ${params}"
         NewStepEventAction parsed = null;
         def matcher = cmdString =~ /(\w++) ([0-9]*) ([0-9]*)/
         if (matcher){
@@ -42,7 +42,7 @@ class NewStepEventCmd extends Command {
             Long nextStepId = null;
 
             try {
-                Long.parseLong(matcher[0][3]);
+                nextStepId = Long.parseLong(matcher[0][3]);
             } catch (NumberFormatException nfe){
 
             }

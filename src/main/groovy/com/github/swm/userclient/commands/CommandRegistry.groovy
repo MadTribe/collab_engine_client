@@ -13,7 +13,10 @@ class CommandRegistry {
                                     new DeletePersonalDataCmd(),
                                     new NewPlanStepCmd(),
                                     new ShowPlanCmd(),
-                                    new NewStepEventCmd())
+                                    new NewStepEventCmd(),
+                                    new BeginPlanCmd(),
+                                    new ListTasksCmd(),
+                                    new SendTaskEventCmd())
 
     public List<Command> getCommands(){
         return commands;
