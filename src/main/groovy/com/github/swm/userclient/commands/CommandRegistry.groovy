@@ -16,7 +16,8 @@ class CommandRegistry {
                                     new NewStepEventCmd(),
                                     new BeginPlanCmd(),
                                     new ListTasksCmd(),
-                                    new SendTaskEventCmd())
+                                    new SendTaskEventCmd(),
+                                    new NewEventParamCmd())
 
     public List<Command> getCommands(){
         return commands;

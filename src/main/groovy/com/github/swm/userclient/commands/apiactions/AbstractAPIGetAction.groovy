@@ -6,20 +6,17 @@ import com.github.swm.userclient.http.Client
 /**
  * Created by paul.smout on 24/03/2015.
  */
-abstract class AbstractAPIPostAction {
+abstract class AbstractAPIGetAction {
 
-    abstract def buildRequestBody();
 
     abstract def apiEndPoint();
 
     abstract def formatOutput(def data, CommandResponse commandResponse);
 
     def CommandResponse go(Client client){
-        println "POSTING TO ${apiEndPoint()} : ${buildRequestBody()}";
-
         CommandResponse ret = null;
-        client.sendPost(apiEndPoint(),
-                buildRequestBody(),
+        client.sendGet(apiEndPoint(),
+                [],
                 { resp, data ->
                     ret = success(data);
                 },
@@ -38,8 +35,6 @@ abstract class AbstractAPIPostAction {
         ret.data = data;
         return ret;
     }
-
-
 
 
     def CommandResponse fail(resp){

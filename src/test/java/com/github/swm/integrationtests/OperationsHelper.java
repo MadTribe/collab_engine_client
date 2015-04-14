@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 * Created by paul.smout on 08/03/2015.
 */
 class OperationsHelper {
+    // final static Logger logger = LoggerFactory.getLogger(OperationsHelper.class);
     private App app;
 
     OperationsHelper(App app) {
@@ -33,10 +34,13 @@ class OperationsHelper {
         assertNotNull(((JSONObject) resp.getData()).get("sessionId"));
     }
 
-    public void I_create_a_new_plan(String name, String desc) {
+    public long I_create_a_new_plan(String name, String desc) {
         CommandResponse resp = app.runCommand(cmd(format("newPlan %s ~ %s", name, desc)));
 
         assertThat(resp.getSuccess(),is(true));
+        assertTrue(((JSONObject) resp.getData()).containsKey("id"));
+
+        return ((JSONObject)resp.getData()).getLong("id");
 
     }
 
@@ -47,7 +51,7 @@ class OperationsHelper {
 
 
         assertTrue(((JSONObject) resp.getData()).containsKey("id"));
-        assertTrue(((JSONObject) resp.getData()).containsKey("createdAt"));
+        assertTrue(((JSONObject) resp.getData()).containsKey("serverTime"));
 
         return ((JSONObject)resp.getData()).getLong("id");
     }
@@ -86,9 +90,13 @@ class OperationsHelper {
         return asList(cmd.split(" "));
     }
 
-    public void i_add_an_oncompleted_event_to_each_step(String eventName, String eventValidator, Long owningStepId, Long nextStepId) {
-        CommandResponse resp = app.runCommand(cmd(format("newStepEvent %s %d %d", eventName, owningStepId, nextStepId)));
+    public long i_add_a_named_event_to_the_step(String eventName, String eventValidator, Long owningStepId, Long nextStepId) {
+        CommandResponse resp = app.runCommand(cmd(format("newStepEvent %s %s %d %d", eventName, eventValidator, owningStepId, nextStepId)));
         assertThat(resp.getSuccess(),is(true));
+        assertTrue(((JSONObject) resp.getData()).containsKey("id"));
+        assertTrue(((JSONObject) resp.getData()).containsKey("serverTime"));
+
+        return ((JSONObject)resp.getData()).getLong("id");
     }
 
     public void when_i_begin_my_plan(Long planId) {
@@ -103,12 +111,21 @@ class OperationsHelper {
     }
 
     public CommandResponse when_i_complete_my_task(long taskId) {
-
-        return sendTaskEvent(taskId, "Complete");
+        CommandResponse resp = when_I_send_task_event(taskId, "Complete", "");
+        assertThat(resp.getSuccess(),is(true));
+        return resp;
     }
 
-    private CommandResponse sendTaskEvent(long taskId, String event) {
-        CommandResponse resp = app.runCommand(cmd(format("event %d %s", taskId, event)));
+
+    public CommandResponse when_I_send_task_event(long taskId, String event, String params) {
+
+        CommandResponse resp = app.runCommand(cmd(format("event %d %s %s", taskId, event, params)));
+        assertThat(resp.getSuccess(),is(true));
+        return resp;
+    }
+
+    public CommandResponse i_add_parameter_to_the_event(Long eventId, String paramName, String type) {
+        CommandResponse resp = app.runCommand(cmd(format("newEventParam %d %s %s",eventId, paramName, type)));
         assertThat(resp.getSuccess(),is(true));
         return resp;
     }

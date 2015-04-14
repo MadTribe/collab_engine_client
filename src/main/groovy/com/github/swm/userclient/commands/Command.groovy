@@ -19,4 +19,43 @@ abstract class Command {
 
     def abstract CommandResponse run(List<String> cmd, CommandContext context);
 
+    def parseNamedParams(){
+
+    }
+
+    def String getRemainingParams(List<String> params, int idx , String name){
+        StringBuffer ret = new StringBuffer();
+        if (params.size() > idx){
+            for (int i = idx; i < params.size(); i++){
+                ret.append(params[i]);
+            }
+        }
+        return ret.toString();
+    }
+
+    def String getStringParam(List<String> params, int idx , String name){
+        String ret = null;
+        if (params.size() > idx){
+            ret = params[idx]
+        } else {
+            throw new ParameterNotFound(name);
+        }
+        return ret;
+    }
+
+    def int getIntParam(List<String> params, int idx , String name){
+        Integer ret = null;
+        if (params.size() > idx){
+            println params[idx]
+            try {
+                ret = Integer.valueOf(params[idx])
+            } catch (NumberFormatException nfe){
+                throw new ParameterFormatException(name);
+            }
+        } else {
+            throw new ParameterNotFound(name);
+        }
+        return ret;
+    }
+
 }

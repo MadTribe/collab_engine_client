@@ -1,5 +1,6 @@
 package com.github.swm.userclient.commands
 
+import com.github.swm.userclient.commands.apiactions.AbstractAPIPostAction
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
@@ -11,7 +12,7 @@ class NewStepEventCmd extends Command {
 
     public NewStepEventCmd(){
 
-        super("newStepEvent","Creates a new plan step.", "newStepEvent <name> <owningStepId> <nextStepId>");
+        super("newStepEvent","Creates a new plan step.", "newStepEvent <name> <type> <owningStepId> <nextStepId>");
     }
 
     @Override
@@ -28,25 +29,22 @@ class NewStepEventCmd extends Command {
 
     private NewStepEventAction parseParams(params){
         def cmdString = params.join(" ");
-println "£££££££ ${params}"
         NewStepEventAction parsed = null;
-        def matcher = cmdString =~ /(\w++) ([0-9]*) ([0-9]*)/
+        def matcher = cmdString =~ /(\w++) (\w++) ([0-9]*) ([0-9]*)/
         if (matcher){
 
             String eventName = matcher[0][1];
-
-
-            Long owningStepId = Long.parseLong(matcher[0][2]);
-
-
+            String eventValidator = matcher[0][2];
+            Long owningStepId = Long.parseLong(matcher[0][3]);
             Long nextStepId = null;
 
             try {
-                nextStepId = Long.parseLong(matcher[0][3]);
+                println("----------" + params + " " + eventName + "" + eventValidator )
+                nextStepId = Long.parseLong(matcher[0][4]);
             } catch (NumberFormatException nfe){
 
             }
-            parsed = new NewStepEventAction(name: eventName, planStepId: owningStepId, nextStepId: nextStepId);
+            parsed = new NewStepEventAction(name: eventName, eventValidator: eventValidator, planStepId: owningStepId, nextStepId: nextStepId);
         }
 
 
@@ -70,45 +68,24 @@ println "£££££££ ${params}"
         return ret;
     }
 
+
     @Canonical
-    public static class NewStepEventAction {
+    public static class NewStepEventAction extends AbstractAPIPostAction{
         def String name;
+        def String eventValidator;
         def Long planStepId;
         def Long nextStepId;
 
-        def CommandResponse go(Client client){
-            CommandResponse ret = null;
-            String path = "/api/plan/event";
-            client.sendPost(path,
-                            [name:name, planStepId: planStepId, nextStepId: nextStepId],
-                            { resp, data ->
-                                ret = success(data);
-                            },
-                            { resp ->
-                                ret = fail(resp);
-                            });
-
-
-            return ret;
+        def apiEndPoint(){
+            return "/api/plan/event";
         }
 
-       def CommandResponse success(data){
-            def ret = new CommandResponse();
-            ret.success = true;
-            ret.output = "Event Created";
-            ret.data = data;
-            return ret;
-       }
+        def buildRequestBody(){
+            return  [name:name, eventValidator: eventValidator, planStepId: planStepId, nextStepId: nextStepId];
+        }
 
-        def CommandResponse fail(resp){
-            def ret = new CommandResponse();
-            ret.success = false;
-            if (resp.statusLine.statusCode == 403){
-                ret.output = "Access Denied";
-            } else {
-                ret.output = "Return code: ${resp.statusLine.statusCode} ${resp.statusLine.reasonPhrase}";
-            }
-            return ret;
+        def formatOutput(data,CommandResponse response){
+            response.output = "Event Created with id ${data.id}";
         }
 
     }

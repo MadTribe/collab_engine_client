@@ -1,9 +1,9 @@
 package com.github.swm.userclient.commands
 
+import com.github.swm.userclient.commands.apiactions.AbstractAPIGetAction
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
-import net.sf.json.JSONArray
 import net.sf.json.JSONObject
 
 /**
@@ -48,55 +48,24 @@ class ShowPlanCmd extends Command {
     }
 
     @Canonical
-    public static class ShowPlanAction{
-
+    public static class ShowPlanAction extends AbstractAPIGetAction {
         def int planId;
 
-        def go(Client client){
-            CommandResponse ret = null;
-            client.sendGet("/api/plan/" + planId,[],{ resp, data ->
-                ret = success(data);
-            },
-            { resp ->
-               ret = fail(resp);
-            });
-
-            return ret;
-
+        def apiEndPoint(){
+            return "/api/plan/" + planId;
         }
 
-        def CommandResponse success(data){
-            def ret = new CommandResponse();
-            ret.success = true;
-            ret.output = "Plan \n";
-            ret.data = data;
-
+        def formatOutput(def data, CommandResponse commandResponse){
+            commandResponse.output = "My Plans \n";
             JSONObject plan = data;
-
-            ret.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.steps?.size()})\n"
+            commandResponse.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.steps?.size()})\n"
 
             plan.steps.each{ step ->
-                ret.output += "     ${step.name}  ${step.description} \n";
+                commandResponse.output += "     ${step.name}  ${step.description} \n";
             }
-
-
-            return ret;
         }
-
-        def CommandResponse fail(resp){
-            def ret = new CommandResponse();
-            ret.success = false;
-            if (resp.statusLine.statusCode == 403){
-                ret.output = "Access Denied";
-            } else {
-                ret.output = "Return code: ${resp.statusLine.statusCode} ${resp.statusLine.reasonPhrase}";
-            }
-            return ret;
-        }
-
 
     }
-
 
 
 }

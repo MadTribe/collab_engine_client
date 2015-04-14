@@ -1,13 +1,9 @@
 package com.github.swm.userclient.commands
 
+import com.github.swm.userclient.commands.apiactions.AbstractAPIPostAction
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
-
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
-import java.util.concurrent.FutureTask
-import java.util.concurrent.TimeUnit
 
 
 /**
@@ -51,44 +47,23 @@ class LoginCmd extends Command {
     }
 
     @Canonical
-    public static class LoginAction{
+    public static class LoginAction extends AbstractAPIPostAction{
         def String userName;
         def String password;
 
-        def CommandResponse go(Client client){
-            CommandResponse ret = null;
-            client.sendPost("/login",
-                            [userName:userName,password: password],
-                            { resp, data ->
-                                ret = success(data);
-                            },
-                            { resp ->
-                                ret = fail(resp);
-                            });
-
-
-            return ret;
+        def apiEndPoint(){
+            return  "/login";
         }
 
-       def CommandResponse success(data){
-            def ret = new CommandResponse();
-            ret.success = true;
-            ret.output = "Login Successful";
-            ret.data = data;
-            return ret;
-       }
+        def buildRequestBody(){
+            return [userName:userName,password: password];
+        }
 
-        def CommandResponse fail(resp){
-            def ret = new CommandResponse();
-            ret.success = false;
-            if (resp.statusLine.statusCode == 403){
-                ret.output = "Access Denied";
-            } else {
-                ret.output = "Return code: ${resp.statusLine.statusCode} ${resp.statusLine.reasonPhrase}";
-            }
-            return ret;
+        def formatOutput(data,CommandResponse response){
+            response.output = "Login Successful";
         }
 
     }
+
 
 }

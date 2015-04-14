@@ -26,7 +26,8 @@ public class PlanTest {
 
     private App app;
     private OperationsHelper ops;
-
+    private static String NULL_VALIDATOR = "NULL";
+    private static String PARAMETER_VALIDATOR = "PARAMETER";
     @Before
     public void setUp(){
         ConfigObject config = new ConfigObject();
@@ -95,9 +96,9 @@ public class PlanTest {
         System.err.println(resp);
 
         //
-        ops.i_add_an_oncompleted_event_to_each_step("complete", null, step1Id, step2Id);
-        ops.i_add_an_oncompleted_event_to_each_step("complete", null, step2Id, step3Id);
-        ops.i_add_an_oncompleted_event_to_each_step("complete", null, step3Id, null);
+        ops.i_add_a_named_event_to_the_step("complete", NULL_VALIDATOR, step1Id, step2Id);
+        ops.i_add_a_named_event_to_the_step("complete", NULL_VALIDATOR, step2Id, step3Id);
+        ops.i_add_a_named_event_to_the_step("complete", NULL_VALIDATOR, step3Id, null);
 
         ops.when_i_begin_my_plan(id);
 
@@ -131,6 +132,55 @@ public class PlanTest {
         tasksResp = ops.when_i_list_my_tasks();
         tasks = (JSONArray)tasksResp.getData();
         assertThat(tasks.size(), equalTo(0));
+
+    }
+
+    @Test
+    public void announceBaby(){
+        ops.given_I_have_logged_in();
+        // and
+        ops.given_I_have_deleted_all_my_data();
+
+        // and given
+        long planId = ops.I_create_a_new_plan("Announce New Baby", "Plan and automate the announcing of the new baby.");
+
+        Long step1Id = ops.i_create_a_new_plan_step(planId, "Make List of People to send to", "This step accepts multiple add names events");
+
+
+        Long addNameEventId = ops.i_add_a_named_event_to_the_step("addName", PARAMETER_VALIDATOR, step1Id, step1Id);
+
+        ops.i_add_parameter_to_the_event(addNameEventId, "emailAddress","ValidEmail");
+        ops.i_add_parameter_to_the_event(addNameEventId, "name","FullName");
+
+
+        // TODO add validator
+        // TODO add params
+        Long completeEventId = ops.i_add_a_named_event_to_the_step("complete", null, step1Id, null);
+
+        ops.when_i_begin_my_plan(planId);
+
+        long task1Id = validate_single_task_in_list("Make List of People to send to", "This step accepts multiple add names events");
+
+        String params = "{\"emailAddress\":\"person@example.com\", " +
+                "\"name\":\"Holden McCrotch\"}";
+
+        ops.when_I_send_task_event(task1Id,"addName", params);
+
+        task1Id = validate_single_task_in_list("Make List of People to send to", "This step accepts multiple add names events");
+
+
+
+    }
+
+    private long validate_single_task_in_list(String expectedName, String expectedDescription){
+        CommandResponse tasksResp = ops.when_i_list_my_tasks();
+        JSONArray tasks = (JSONArray)tasksResp.getData();
+        assertThat(tasks.size(), equalTo(1));
+        JSONObject task1 = tasks.getJSONObject(0);
+
+        validate_task(task1, expectedName,  expectedDescription);
+
+        return task1.getLong("id");
 
     }
 

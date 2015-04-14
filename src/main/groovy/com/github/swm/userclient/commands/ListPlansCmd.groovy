@@ -1,5 +1,6 @@
 package com.github.swm.userclient.commands
 
+import com.github.swm.userclient.commands.apiactions.AbstractAPIGetAction
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
@@ -45,50 +46,22 @@ class ListPlansCmd extends Command {
 
     }
 
+
     @Canonical
-    public static class ListPlansAction{
+    public static class ListPlansAction extends AbstractAPIGetAction {
 
-        def go(Client client){
-            CommandResponse ret = null;
-            client.sendGet("/api/plan",[],{ resp, data ->
-                ret = success(data);
-            },
-            { resp ->
-               ret = fail(resp);
-            });
-
-            return ret;
-
+        def apiEndPoint(){
+            return "/api/plan";
         }
 
-        def CommandResponse success(data){
-            def ret = new CommandResponse();
-            ret.success = true;
-            ret.output = "My Plans \n";
-            ret.data = data;
+        def formatOutput(def data, CommandResponse commandResponse){
+            commandResponse.output = "My Plans \n";
             JSONArray planList = data;
             planList.each { plan ->
-                ret.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.numSteps})\n"
-
+                commandResponse.output += "${plan.id})  ${plan.name} - ${plan.description}  (Steps = ${plan.numSteps})\n"
             }
-
-            return ret;
         }
-
-        def CommandResponse fail(resp){
-            def ret = new CommandResponse();
-            ret.success = false;
-            if (resp.statusLine.statusCode == 403){
-                ret.output = "Access Denied";
-            } else {
-                ret.output = "Return code: ${resp.statusLine.statusCode} ${resp.statusLine.reasonPhrase}";
-            }
-            return ret;
-        }
-
 
     }
-
-
 
 }

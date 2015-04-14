@@ -8,34 +8,38 @@ import groovy.transform.Canonical
 /**
  * Created by paul.smout on 20/02/2015.
  */
-class NewPlanStepCmd extends Command {
+class NewEventParamCmd extends Command {
 
-    public NewPlanStepCmd(){
-        super("newStep","Creates a new plan step.", "newStep <planId> <step-name> ~ <step-description>");
+    public NewEventParamCmd(){
+
+        super("newEventParam","Creates a new event parameter.", "newStepEvent <owningEventId> <name> <type>");
     }
 
     @Override
     def boolean accept(final List<String> cmd){
         boolean ret = false;
         if (cmd.size() > 0){
-            if (cmd[0] == "newStep"){
-                List<String> params = cmd.subList(1,cmd.size());
-                ret = parseParams(params) != null;
+            if (cmd[0] == "newEventParam"){
+
+                ret = true;
             }
         }
         return ret;
     }
 
-    private NewPlanStepAction parseParams(params){
-        def cmdString = params.join(" ");
+    private NewEventParamAction parseParams(params){
 
-        NewPlanStepAction parsed = null;
-        def matcher = cmdString =~ /\s*+(\d++) ([\w*\W*]*)~([\w*+\W*+]*)/
+        def cmdString = params.join(" ");
+        NewEventParamAction parsed = null;
+        def matcher = cmdString =~ /([0-9]*) (\w++) (\w++)/
         if (matcher){
-            Long planId = Long.parseLong(matcher[0][1]);
-            String name = matcher[0][2];
-            String description = matcher[0][3];
-            parsed = new NewPlanStepAction(planId: planId, name: name?.trim(),description: description?.trim());
+
+            Long owningEventId = Long.parseLong(matcher[0][1]);
+            String paramName = matcher[0][2];
+            String type = matcher[0][3];
+
+
+            parsed = new NewEventParamAction(owningEventId: owningEventId, paramName: paramName, type: type);
         }
 
 
@@ -61,21 +65,22 @@ class NewPlanStepCmd extends Command {
 
 
     @Canonical
-    public static class NewPlanStepAction extends AbstractAPIPostAction{
-        def Long planId;
-        def String name;
-        def String description;
+    public static class NewEventParamAction extends AbstractAPIPostAction{
+        def Long owningEventId;
+        def String paramName;
+
+        def String type;
 
         def apiEndPoint(){
-            return "/api/plan/" + planId + "/step";
+            return "/api/events/${owningEventId}/params";
         }
 
         def buildRequestBody(){
-            return [name:name,description: description];
+            return  [owningEventId:owningEventId, paramName: paramName, type: type];
         }
 
         def formatOutput(data,CommandResponse response){
-            response.output = "Step Created";
+            response.output = "Event Param Created with id ${data.id}";
         }
 
     }
