@@ -1,5 +1,7 @@
 package com.github.swm.integrationtests;
 
+import com.github.swm.integrationtests.helpers.OperationsHelper;
+import com.github.swm.integrationtests.helpers.ScriptOperationsHelper;
 import com.github.swm.userclient.App;
 import com.github.swm.userclient.commands.CommandResponse;
 import groovy.util.ConfigObject;
@@ -14,6 +16,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.lang.String.format;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNotNull;
@@ -26,6 +30,8 @@ public class PlanTest {
 
     private App app;
     private OperationsHelper ops;
+    private ScriptOperationsHelper scriptOps;
+
     private static String NULL_VALIDATOR = "NULL";
     private static String PARAMETER_VALIDATOR = "PARAMETER";
     @Before
@@ -34,7 +40,7 @@ public class PlanTest {
         config.setProperty("serverAddress", System.getProperty("serverAddress","localhost:8080"));
         app = new App(config);
         ops = new OperationsHelper(app);
-
+        scriptOps = new ScriptOperationsHelper(app);
     }
 
     @After
@@ -47,7 +53,7 @@ public class PlanTest {
         _should_log_in_and_create_a_plan();
     }
 
-    @Test
+  //  @Test
     public void load_should_log_in_and_create_a_plan() throws ExecutionException, InterruptedException {
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
@@ -96,9 +102,9 @@ public class PlanTest {
         System.err.println(resp);
 
         //
-        ops.i_add_a_named_event_to_the_step("complete", NULL_VALIDATOR, step1Id, step2Id);
-        ops.i_add_a_named_event_to_the_step("complete", NULL_VALIDATOR, step2Id, step3Id);
-        ops.i_add_a_named_event_to_the_step("complete", NULL_VALIDATOR, step3Id, null);
+        ops.i_add_a_named_event_to_the_step("complete", "" ,NULL_VALIDATOR, step1Id, step2Id);
+        ops.i_add_a_named_event_to_the_step("complete", "" ,NULL_VALIDATOR, step2Id, step3Id);
+        ops.i_add_a_named_event_to_the_step("complete", "" ,NULL_VALIDATOR, step3Id, null);
 
         ops.when_i_begin_my_plan(id);
 
@@ -136,10 +142,32 @@ public class PlanTest {
     }
 
     @Test
+    public void should_not_be_able_to_multiple_plans_with_same_name(){
+
+
+        ops.given_I_have_logged_in();
+        // and
+        ops.given_I_have_deleted_all_my_data();
+
+        ops.I_create_a_new_plan("My First Plan", "This plan is about attaining world peace.");
+
+
+        CommandResponse resp = ops.I_try_to_create_a_new_plan("My First Plan", "This plan is about attaining world peace.");
+        assertFalse("Commant should fail", resp.getSuccess());
+
+
+    }
+
+    @Test
     public void announceBaby(){
         ops.given_I_have_logged_in();
         // and
         ops.given_I_have_deleted_all_my_data();
+
+        //
+        scriptOps.I_create_a_new_script("storeParams", "def item = api.getParamsAsObject('emailAddress','name'); \n" +
+                                                       "api.context().saveToList('/announcebaby/emailrecipientslist',item)");
+
 
         // and given
         long planId = ops.I_create_a_new_plan("Announce New Baby", "Plan and automate the announcing of the new baby.");
@@ -147,7 +175,7 @@ public class PlanTest {
         Long step1Id = ops.i_create_a_new_plan_step(planId, "Make List of People to send to", "This step accepts multiple add names events");
 
 
-        Long addNameEventId = ops.i_add_a_named_event_to_the_step("addName", PARAMETER_VALIDATOR, step1Id, step1Id);
+        Long addNameEventId = ops.i_add_a_named_event_to_the_step("addName", "storeParams", PARAMETER_VALIDATOR, step1Id, step1Id);
 
         ops.i_add_parameter_to_the_event(addNameEventId, "emailAddress","ValidEmail");
         ops.i_add_parameter_to_the_event(addNameEventId, "name","FullName");
@@ -155,7 +183,7 @@ public class PlanTest {
 
         // TODO add validator
         // TODO add params
-        Long completeEventId = ops.i_add_a_named_event_to_the_step("complete", null, step1Id, null);
+        Long completeEventId = ops.i_add_a_named_event_to_the_step("complete", "", null, step1Id, null);
 
         ops.when_i_begin_my_plan(planId);
 

@@ -5,5 +5,6 @@ package com.github.swm.userclient.commands
  */
 class ParameterNotFound extends Exception {
     ParameterNotFound(String s) {
+        super("")
     }
 }

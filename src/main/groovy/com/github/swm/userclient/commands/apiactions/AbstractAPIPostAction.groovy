@@ -6,7 +6,7 @@ import com.github.swm.userclient.http.Client
 /**
  * Created by paul.smout on 24/03/2015.
  */
-abstract class AbstractAPIPostAction {
+abstract class AbstractAPIPostAction implements ApiAction {
 
     abstract def buildRequestBody();
 
@@ -23,14 +23,15 @@ abstract class AbstractAPIPostAction {
                 { resp, data ->
                     ret = success(data);
                 },
-                { resp ->
-                    ret = fail(resp);
+                { resp, data ->
+                    ret = fail(resp, data);
                 });
 
 
         return ret;
     }
 
+    @Override
     def CommandResponse success(data){
         def ret = new CommandResponse();
         ret.success = true;
@@ -41,14 +42,15 @@ abstract class AbstractAPIPostAction {
 
 
 
-
-    def CommandResponse fail(resp){
+    @Override
+    def CommandResponse fail(resp, data){
+        println resp.data;
         def ret = new CommandResponse();
         ret.success = false;
         if (resp.statusLine.statusCode == 403){
             ret.output = "Access Denied";
         } else {
-            ret.output = "Return code: ${resp.statusLine.statusCode} ${resp.statusLine.reasonPhrase}";
+            ret.output = "Return code: ${resp.statusLine.statusCode} ${resp.statusLine.reasonPhrase} ${data.message}";
         }
         return ret;
     }

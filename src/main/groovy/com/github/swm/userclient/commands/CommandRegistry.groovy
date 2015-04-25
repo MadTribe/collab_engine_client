@@ -1,5 +1,8 @@
 package com.github.swm.userclient.commands
 
+import com.github.swm.userclient.commands.entitymanagement.ScriptCmd
+import com.github.swm.userclient.commands.entitymanagement.StepEventCmd
+
 import static java.util.Arrays.asList
 
 /**
@@ -13,11 +16,13 @@ class CommandRegistry {
                                     new DeletePersonalDataCmd(),
                                     new NewPlanStepCmd(),
                                     new ShowPlanCmd(),
-                                    new NewStepEventCmd(),
+                                    new NewStepEventCmd(), // soon to be deprecated
+                                    new StepEventCmd(),
                                     new BeginPlanCmd(),
                                     new ListTasksCmd(),
                                     new SendTaskEventCmd(),
-                                    new NewEventParamCmd())
+                                    new NewEventParamCmd(),
+                                    new ScriptCmd())
 
     public List<Command> getCommands(){
         return commands;

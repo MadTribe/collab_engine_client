@@ -39,7 +39,6 @@ class NewStepEventCmd extends Command {
             Long nextStepId = null;
 
             try {
-                println("----------" + params + " " + eventName + "" + eventValidator )
                 nextStepId = Long.parseLong(matcher[0][4]);
             } catch (NumberFormatException nfe){
 

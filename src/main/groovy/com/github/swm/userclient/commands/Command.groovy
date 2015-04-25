@@ -19,8 +19,10 @@ abstract class Command {
 
     def abstract CommandResponse run(List<String> cmd, CommandContext context);
 
-    def parseNamedParams(){
-
+    def void checkParam(def param, def name){
+        if (!param){
+            throw new ParameterNotFound(name);
+        }
     }
 
     def String getRemainingParams(List<String> params, int idx , String name){

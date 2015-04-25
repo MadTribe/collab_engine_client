@@ -1,12 +1,11 @@
 package com.github.swm.integrationtests;
 
+import com.github.swm.integrationtests.helpers.OperationsHelper;
 import com.github.swm.userclient.App;
-import com.github.swm.userclient.commands.CommandResponse;
 import groovy.util.ConfigObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**

@@ -33,6 +33,32 @@ class Client {
             }
 
             // handler for any failure status code:
+            response.failure = { resp, json  ->
+                if (onFailure){
+                    onFailure(resp, json);
+                }
+            }
+        }
+
+    }
+
+    def sendPut(path,entity, onSuccess, onFailure){
+        // perform a POST request, expecting JSON response data
+        http.request( PUT, JSON ) {
+
+            uri.path = path
+
+            body = entity;
+            headers.'User-Agent' = "SWM client ${version}"
+            headers.Accept = 'application/json';
+
+            // response handler for a success response code:
+            response.success = { resp, json ->
+                onSuccess(resp, json);
+
+            }
+
+            // handler for any failure status code:
             response.failure = { resp ->
                 if (onFailure){
                     onFailure(resp);

@@ -1,7 +1,9 @@
-package com.github.swm.integrationtests;
+package com.github.swm.integrationtests.helpers;
 
 import com.github.swm.userclient.App;
+import com.github.swm.userclient.commands.Command;
 import com.github.swm.userclient.commands.CommandResponse;
+import com.github.swm.userclient.commands.EntityOperations;
 import net.sf.json.JSONObject;
 
 import java.util.List;
@@ -18,11 +20,11 @@ import static org.junit.Assert.assertTrue;
 /**
 * Created by paul.smout on 08/03/2015.
 */
-class OperationsHelper {
+public class OperationsHelper {
     // final static Logger logger = LoggerFactory.getLogger(OperationsHelper.class);
     private App app;
 
-    OperationsHelper(App app) {
+    public OperationsHelper(App app) {
         this.app = app;
     }
 
@@ -35,7 +37,7 @@ class OperationsHelper {
     }
 
     public long I_create_a_new_plan(String name, String desc) {
-        CommandResponse resp = app.runCommand(cmd(format("newPlan %s ~ %s", name, desc)));
+        CommandResponse resp =I_try_to_create_a_new_plan(name, desc);
 
         assertThat(resp.getSuccess(),is(true));
         assertTrue(((JSONObject) resp.getData()).containsKey("id"));
@@ -43,6 +45,13 @@ class OperationsHelper {
         return ((JSONObject)resp.getData()).getLong("id");
 
     }
+
+    public CommandResponse I_try_to_create_a_new_plan(String name, String desc) {
+            CommandResponse resp = app.runCommand(cmd(format("newPlan %s ~ %s", name, desc)));
+
+            return resp;
+
+        }
 
     public long i_create_a_new_plan_step(Long planId, String name, String desc) {
         CommandResponse resp = app.runCommand(cmd(format("newStep %d %s ~ %s",planId, name, desc)));
@@ -90,8 +99,10 @@ class OperationsHelper {
         return asList(cmd.split(" "));
     }
 
-    public long i_add_a_named_event_to_the_step(String eventName, String eventValidator, Long owningStepId, Long nextStepId) {
-        CommandResponse resp = app.runCommand(cmd(format("newStepEvent %s %s %d %d", eventName, eventValidator, owningStepId, nextStepId)));
+    public long i_add_a_named_event_to_the_step(String eventName, String eventHandler, String eventValidator, Long owningStepId, Long nextStepId) {
+        //CommandResponse resp = app.runCommand(cmd(format("newStepEvent %s %s %d %d", eventName, eventValidator, owningStepId, nextStepId)));
+        CommandResponse resp = app.runCommand(cmd(format("stepEvent -op NEW -name " + eventName + " -eventValidator " + eventValidator + " -stepId " + owningStepId + " -eventHandler " + eventHandler + "  -nextStep " + nextStepId)));
+
         assertThat(resp.getSuccess(),is(true));
         assertTrue(((JSONObject) resp.getData()).containsKey("id"));
         assertTrue(((JSONObject) resp.getData()).containsKey("serverTime"));
@@ -111,7 +122,7 @@ class OperationsHelper {
     }
 
     public CommandResponse when_i_complete_my_task(long taskId) {
-        CommandResponse resp = when_I_send_task_event(taskId, "Complete", "");
+        CommandResponse resp = when_I_send_task_event(taskId, "Complete", "{}");
         assertThat(resp.getSuccess(),is(true));
         return resp;
     }
@@ -129,4 +140,6 @@ class OperationsHelper {
         assertThat(resp.getSuccess(),is(true));
         return resp;
     }
+
+
 }
