@@ -168,36 +168,43 @@ public class PlanTest {
         scriptOps.I_create_a_new_script("storeParams", "def item = api.getParamsAsObject('emailAddress','name'); \n" +
                                                        "api.context().saveToList('announcebaby_emailrecipientslist',item)");
 
+        scriptOps.I_create_a_new_script("viewList", "def item = api.context().getList('announcebaby_emailrecipientslist')");
 
         // and given
         long planId = ops.I_create_a_new_plan("Announce New Baby", "Plan and automate the announcing of the new baby.");
 
-        Long step1Id = ops.i_create_a_new_plan_step(planId, "Make List of People to send to", "This step accepts multiple add names events");
+        Long makeList   = ops.i_create_a_new_plan_step(planId, "Make List of People to send to", "This step accepts multiple add names events");
+        Long reviewList = ops.i_create_a_new_plan_step(planId, "Review the list", "This step provides an event to return the full list");
+        Long composeEmail = ops.i_create_a_new_plan_step(planId, "Compose the email", "This step allows submission and editing of the email template.");
+        Long waitForBaby = ops.i_create_a_new_plan_step(planId, "Wait for baby", "This step provides an event for when the birth occurs.");
+        Long enterBabyDetails = ops.i_create_a_new_plan_step(planId, "Enter Baby Details", "This step has events for entering baby name, gender and weight.");
+        Long sendEmails = ops.i_create_a_new_plan_step(planId, "Send Emails", "This step sends out the emails.");
 
-
-        Long addNameEventId = ops.i_add_a_named_event_to_the_step("addName", "storeParams", PARAMETER_VALIDATOR, step1Id, step1Id);
-
+        Long addNameEventId = ops.i_add_a_named_event_to_the_step("addName", "storeParams", PARAMETER_VALIDATOR, makeList, makeList);
         ops.i_add_parameter_to_the_event(addNameEventId, "emailAddress","ValidEmail");
         ops.i_add_parameter_to_the_event(addNameEventId, "name","FullName");
 
+        Long completeEventId = ops.i_add_a_named_event_to_the_step("complete", "", null, makeList, reviewList);
 
-        // TODO add validator
-        // TODO add params
-        Long completeEventId = ops.i_add_a_named_event_to_the_step("complete", "", null, step1Id, null);
+
+        Long viewList = ops.i_add_a_named_event_to_the_step("viewList", "viewList", null, reviewList, reviewList);
+        Long approveList = ops.i_add_a_named_event_to_the_step("approveList", "", null, reviewList, composeEmail);
+
+
 
         ops.when_i_begin_my_plan(planId);
 
         long task1Id = validate_single_task_in_list("Make List of People to send to", "This step accepts multiple add names events");
 
         String params = "{\"emailAddress\":\"person@example.com\", " +
-                "\"name\":\"Holden McCrotch\"}";
+                        " \"name\":\"Holden McCrotch\"}";
 
         ops.when_I_send_task_event(task1Id,"addName", params);
 
         task1Id = validate_single_task_in_list("Make List of People to send to", "This step accepts multiple add names events");
 
         params = "{\"emailAddress\":\"person2@example.com\", " +
-                "\"name\":\"Regina Falange\"}";
+                  "\"name\":\"Regina Falange\"}";
 
         ops.when_I_send_task_event(task1Id,"addName", params);
 
