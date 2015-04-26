@@ -45,7 +45,7 @@ public class PlanTest {
 
     @After
     public void teardown(){
-       ops.given_I_have_deleted_all_my_data();
+ //      ops.given_I_have_deleted_all_my_data();
     }
 
     @Test
@@ -166,7 +166,7 @@ public class PlanTest {
 
         //
         scriptOps.I_create_a_new_script("storeParams", "def item = api.getParamsAsObject('emailAddress','name'); \n" +
-                                                       "api.context().saveToList('/announcebaby/emailrecipientslist',item)");
+                                                       "api.context().saveToList('announcebaby_emailrecipientslist',item)");
 
 
         // and given
@@ -196,7 +196,10 @@ public class PlanTest {
 
         task1Id = validate_single_task_in_list("Make List of People to send to", "This step accepts multiple add names events");
 
+        params = "{\"emailAddress\":\"person2@example.com\", " +
+                "\"name\":\"Regina Falange\"}";
 
+        ops.when_I_send_task_event(task1Id,"addName", params);
 
     }
 
