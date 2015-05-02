@@ -4,12 +4,7 @@ import com.github.swm.userclient.commands.apiactions.AbstractAPIPostAction
 import com.github.swm.userclient.context.CommandContext
 import com.github.swm.userclient.http.Client
 import groovy.transform.Canonical
-import jdk.nashorn.internal.parser.JSONParser
-import joptsimple.NonOptionArgumentSpec
-import joptsimple.OptionParser
-import joptsimple.OptionSet
 import net.sf.json.JSON
-import net.sf.json.JSONObject
 import net.sf.json.JSONSerializer
 import net.sf.json.JsonConfig
 
@@ -78,7 +73,7 @@ class SendTaskEventCmd extends Command {
         }
 
         def formatOutput(data,CommandResponse response){
-            response.output = "Event Sent";
+            response.output = "Event Response  <<<" + data + ">>";
         }
 
 

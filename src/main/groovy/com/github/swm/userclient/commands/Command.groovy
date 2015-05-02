@@ -30,6 +30,7 @@ abstract class Command {
         if (params.size() > idx){
             for (int i = idx; i < params.size(); i++){
                 ret.append(params[i]);
+                ret.append(" ");
             }
         }
         return ret.toString();

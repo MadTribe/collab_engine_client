@@ -23,7 +23,7 @@ public abstract class AbstractEntityCommand extends Command{
     OptionParser parser = new OptionParser();
     OptionSpec<EntityOperations> operationsOptionSpec;
 
-    AbstractEntityCommand(String name, String description, String usage) {
+    public AbstractEntityCommand(String name, String description, String usage) {
         super(name, description, usage)
         this.parser = parser
         operationsOptionSpec = parser.accepts( "op" ).withRequiredArg().ofType( EntityOperations.class ).defaultsTo("LIST_MATCHING");
