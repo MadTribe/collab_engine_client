@@ -216,16 +216,16 @@ public class PlanTest {
         Long approveList = ops.i_add_a_named_event_to_the_step("approveList", "", null, reviewList, composeEmail);
 
         Long submitEmailEventId = ops.i_add_a_named_event_to_the_step("submitEmail", "storeEmail", PARAMETER_VALIDATOR, composeEmail, waitForBaby);
-        ops.i_add_parameter_to_the_event(submitEmailEventId, "emailTemplate","Not Null");
+        ops.i_add_parameter_to_the_event(submitEmailEventId, "emailTemplate","NotNull");
 
         Long babyBornEventId = ops.i_add_a_named_event_to_the_step("babyBorn", "", PARAMETER_VALIDATOR, waitForBaby, enterBabyDetails);
 
 
         Long enterDetailsEventId = ops.i_add_a_named_event_to_the_step("enterDetails", "storeBabyDetails", PARAMETER_VALIDATOR, enterBabyDetails, sendEmails);
-        ops.i_add_parameter_to_the_event(enterDetailsEventId, "babyname","Not Null");
-        ops.i_add_parameter_to_the_event(enterDetailsEventId, "birthtime","Not Null");
-        ops.i_add_parameter_to_the_event(enterDetailsEventId, "birthdate","Not Null");
-        ops.i_add_parameter_to_the_event(enterDetailsEventId, "birthweight","Not Null");
+        ops.i_add_parameter_to_the_event(enterDetailsEventId, "babyname","NotNull");
+        ops.i_add_parameter_to_the_event(enterDetailsEventId, "birthtime","Time");
+        ops.i_add_parameter_to_the_event(enterDetailsEventId, "birthdate","Date");
+        ops.i_add_parameter_to_the_event(enterDetailsEventId, "birthweight","NotNull");
 
 
         Long buildAnSendEmailsEventId = ops.i_add_a_named_event_to_the_step("sendEmails", "buildAndSendEmails", PARAMETER_VALIDATOR, sendEmails, null);

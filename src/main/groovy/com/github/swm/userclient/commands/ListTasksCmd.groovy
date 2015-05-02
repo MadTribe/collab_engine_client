@@ -55,6 +55,20 @@ class ListTasksCmd extends Command {
             JSONArray taskList = data;
             taskList.each { task ->
                 commandResponse.output += "${task.id})  ${task.name} - ${task.description} \n"
+                task.events.each { event ->
+                    commandResponse.output += "     ${event.name} ("
+                    String sep = "";
+                    event.params.each { param ->
+                        commandResponse.output += sep;
+
+                        commandResponse.output += " <<${param.type}>> ${param.name}";
+
+                        sep = ",";
+                    }
+
+                    commandResponse.output += ")\n"
+                }
+
 
             }
         }
